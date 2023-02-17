@@ -42,28 +42,6 @@ export default function TopBar() {
               </Link>
             </li>
           </ul>
-          {user ? (
-            <ul class="navbar-nav">
-              <li class="nav-item">
-                <Link className="nav-link active" to="/settings">
-                  My Profile
-                </Link>
-              </li>
-            </ul>
-          ) : (
-            <ul class="navbar-nav">
-              <li class="nav-item fix mr-0 ml-0">
-                <Link className="nav-link active" to="/login">
-                  Login
-                </Link>
-              </li>
-              <li class="nav-item">
-                <Link className="nav-link active " to="/register">
-                  Register
-                </Link>
-              </li>
-            </ul>
-          )}
         </div>
       </div>
     </div>

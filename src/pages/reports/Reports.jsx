@@ -1,33 +1,41 @@
 import { useContext, useState } from "react";
 import Costs from "../../components/costs/Costs";
-import { Context } from "../../context/Context";
-import { axiosInstance } from "../../config";
-import axios from "axios";
 import "../reports/reports.css";
-import { useEffect } from "react";
 
 export default function Reports() {
-  const { user } = useContext(Context);
   const [costs, setCosts] = useState([]);
-  const [sum, setSum] = useState();
+  const [sum, setSum] = useState(0);
   const [category, setcategory] = useState("");
   const [year, setyear] = useState("");
   const [month, setmonth] = useState("");
 
   // Sends a request to the server for issuing reports according to filters
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    var res = await axiosInstance.get(
-      `/report?user=${user.username}&category=${category}&month=${month}&year=${year}`
-    );
-    setSum(res.data.sum);
-    setCosts(res.data.costs);
+    let costs = JSON.parse(localStorage.getItem("expenses")) || [];
+
+    let filteredCosts = costs;
+    console.log(filteredCosts)
+  
+    if (category) {
+      filteredCosts = filteredCosts.filter((cost) => cost.category === category);
+    }
+  
+    if (year) {
+      filteredCosts = filteredCosts.filter((cost) => cost.date.substring(0, 4) === year);
+    }
+  
+    if (month) {
+      filteredCosts = filteredCosts.filter((cost) => cost.date.substring(5, 7) === month);
+    }
+  
+    const sum = filteredCosts.reduce((total, cost) => total + parseInt(cost.sum), 0);
+
+    setCosts(filteredCosts);
+    setSum(sum);
   };
-
-  useEffect(() => {
-    localStorage.setItem('costs', JSON.stringify(costs));
-  }, [costs]);
-
+  
+  
   return (
     <div className="report">
       <Costs costs={costs} />

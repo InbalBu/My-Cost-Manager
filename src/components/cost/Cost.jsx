@@ -18,7 +18,7 @@ export default function Cost({ cost }) {
       </div>
       <div>
         <span>Date: </span>
-        {new Date(cost.createdAt).toDateString()}
+        {new Date(cost.date).toLocaleDateString('en-US') }
       </div>
       <div>
         <span>Sum: </span>
@@ -26,9 +26,9 @@ export default function Cost({ cost }) {
       </div>
       <hr />
       <div className="btnCost">
-        <Link to={`/cost/${cost._id}`} className="link">
-          View Action
-        </Link>
+      <Link to={{ pathname: `/cost/${cost.costId}`, state: { cost } }} className="link">
+  View Action
+</Link>
       </div>
     </div>
   );

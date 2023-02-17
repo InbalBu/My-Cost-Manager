@@ -1,52 +1,52 @@
-import { axiosInstance } from "../../config";
 import { useContext, useEffect, useState } from "react";
 import { useLocation } from "react-router";
-import { Link } from "react-router-dom";
 import { Context } from "../../context/Context";
 import "./singleCost.css";
 
 export default function SingleCost() {
   const location = useLocation();
-  const path = location.pathname.split("/")[2];
-  const [cost, setCost] = useState({});
   const { user } = useContext(Context);
   const [sum, setSum] = useState(0);
-  const [description, setdescription] = useState("");
-  const [category, setcategory] = useState("");
+  const [description, setDescription] = useState("");
+  const [category, setCategory] = useState("");
   const [updateMode, setUpdateMode] = useState(false);
+  const cost = location.state.cost;
 
   useEffect(() => {
-    const getCost = async () => {
-      const res = await axiosInstance.get("/getCostById/" + path);
-      setCost(res.data);
-      setSum(res.data.sum);
-      setdescription(res.data.description);
-      setcategory(res.data.category);
+    const getCost = () => {
+      const storedData = JSON.parse(localStorage.getItem("expenses"));
+      const data = storedData.find(item => item._id === cost._id);
+      if (data) {
+        setSum(data.sum);
+        setDescription(data.description);
+        setCategory(data.category);
+      }
     };
     getCost();
-  }, [path]);
+  }, [cost._id]);
 
-  // Sending a request to delete a record
-  const handleDelete = async () => {
-    try {
-      await axiosInstance.delete(`/deleteCost/${cost._id}`, {
-        data: { username: user.username },
-      });
-      window.location.replace("/");
-    } catch (err) {}
+  const handleDelete = () => {
+    const storedData = JSON.parse(localStorage.getItem("expenses"));
+    const updatedData = storedData.filter((item) => item._id !== cost._id);
+    localStorage.setItem("costs", JSON.stringify(updatedData));
+    window.location.replace("/");
   };
 
-  // Sending a request to update a record
-  const handleUpdate = async () => {
-    try {
-      await axiosInstance.put(`/updateCost/${cost._id}`, {
-        username: user.username,
-        description,
-        sum,
-        category,
-      });
-      setUpdateMode(false);
-    } catch (err) {}
+  const handleUpdate = () => {
+    const storedData = JSON.parse(localStorage.getItem("expenses"));
+    const updatedData = storedData.map((item) => {
+      if (item._id === cost._id) {
+        return {
+          ...item,
+          sum,
+          description,
+          category,
+        };
+      }
+      return item;
+    });
+    localStorage.setItem("costs", JSON.stringify(updatedData));
+    setUpdateMode(false);
   };
 
   return (
@@ -80,9 +80,9 @@ export default function SingleCost() {
         <div className="singleCostInfo">
           <span className="singleCostAuthor">
             Author:
-            <Link to={`/?users=${cost.username}`} className="link">
+           
               <b> {cost.username}</b>
-            </Link>
+        
           </span>
         </div>
         {updateMode ? (
@@ -91,14 +91,14 @@ export default function SingleCost() {
             value={description}
             className="singleCostdescriptionInput"
             autoFocus
-            onChange={(e) => setdescription(e.target.value)}
+            onChange={(e) => setDescription(e.target.value)}
           />
         ) : (
           <p className="singleCostdescription">Description: {description}</p>
         )}
-         <span className="singleCostDate">
-          Date: {new Date(cost.createdAt).toDateString()}
-          </span>
+        <span className="singleCostDate">
+          Date: {new Date(cost.date).toLocaleDateString('en-US') }
+        </span>
         {updateMode && (
           <button className="singleCostButton" onClick={handleUpdate}>
             Update
@@ -107,4 +107,4 @@ export default function SingleCost() {
       </div>
     </div>
   );
-}
+};

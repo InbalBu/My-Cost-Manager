@@ -4,31 +4,46 @@ import { axiosInstance } from "../../config";
 import { Context } from "../../context/Context";
 import CustomPopUp from "./../popup/CustomPopUp";
 
+
 export default function Write() {
   const [sum, setSum] = useState(0);
   const [description, setDesc] = useState("");
   const [category, setcategory] = useState("");
-  const { user } = useContext(Context);
+  const [date, setDate] = useState(new Date());
   const [show, setshow] = useState(false);
   const [bodyPopUp, setbodyPopUp] = useState(false);
+  
 
   // Sends a request to the server to create a new record
   const handleSubmit = async (e) => {
     e.preventDefault();
     const newcost = {
-      username: user.username,
+      username: 123123,
       category,
-      sum,
+      sum: parseInt(sum),
       description,
+      date
     };
     try {
-      const res = await axiosInstance.post("/addcost", newcost);
+      // get the current expenses from local storage
+      const currentExpenses = JSON.parse(localStorage.getItem('expenses')) || [];
+  
+      // add the new expense to the expenses array
+      currentExpenses.push(newcost);
+  
+      // update the expenses array in local storage
+      localStorage.setItem('expenses', JSON.stringify(currentExpenses));
+  
+      // show success message and reset form fields
       setbodyPopUp("Action has been included in your total expenses");
       setshow(true);
+      setcategory('');
+      setDesc('');
+      setSum('');
+      setDate(new Date().getFullYear().toString());
       document.getElementById("Category").value = "";
       document.getElementById("Sum").value = "";
       document.getElementById("Description").value = "";
-      // window.location.replace("/cost/" + res.data._id);
     } catch (err) {
       setbodyPopUp("All fields must be filled");
       setshow(true);

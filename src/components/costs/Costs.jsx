@@ -5,7 +5,7 @@ export default function Costs({ costs }) {
   return (
     <div className="costs">
       {costs.map((p) => (
-        <Cost cost={p} />
+        <Cost cost={p} costId={p._id} />
       ))}
     </div>
   );
